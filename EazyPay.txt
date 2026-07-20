@@ -1,0 +1,775 @@
+Based on your detailed requirements and the provided database schema, here's a comprehensive prompt for developing the CA Firm Management System.
+
+PROMPT: CA FIRM MANAGEMENT SYSTEM
+PROJECT OVERVIEW
+Develop a complete web-based CA Firm Management System with two portals (CA/Admin Dashboard and Client Dashboard) that automates client management, document collection, fee management, bill generation, and status tracking.
+
+TECH STACK
+Frontend: React.js with Vite, Tailwind CSS, Shadcn UI, Framer Motion
+
+Backend: Python (FastAPI/Flask)
+
+Database: MySQL
+
+Authentication: JWT
+
+Storage: Google Drive API integration
+
+Payment: Razorpay
+
+Email: Nodemailer/SMTP
+
+WhatsApp: Meta WhatsApp API
+
+PDF: ReportLab/PyPDF2
+
+AI: Keyword matching for fee structure
+
+SYSTEM ARCHITECTURE
+1. AUTHENTICATION SYSTEM
+User Roles:
+Super Admin: Creates and manages CA accounts
+
+CA: Manages clients, fees, documents, and billing
+
+Staff: Assists CA with limited permissions
+
+Client: Uploads documents, views bills, tracks status
+
+Authentication Flow:
+Super Admin creates CA account
+
+CA logs in with credentials
+
+CA creates client and sends login credentials via email
+
+Client receives credentials and activates account
+
+All login attempts use JWT-based authentication
+
+Required Features:
+Signup/Login with email verification
+
+Forgot Password functionality
+
+Role-based access control (RBAC)
+
+Session management
+
+Password encryption (bcrypt)
+
+2. CA DASHBOARD
+Dashboard Overview Metrics:
+Total Clients, Active Clients, Pending Documents
+
+Processing Cases, Completed Cases
+
+Total Revenue, Pending Payments
+
+Recent Activities (last 30 days)
+
+Client Management Module:
+Create Client Form:
+
+Name, Mobile, Email, PAN, Aadhaar, Address
+
+Financial Year selection (from FY_MASTER)
+
+Client Type (Individual/Business)
+
+Auto-generate client login credentials
+
+Send credentials via Email and WhatsApp
+
+Client List View:
+
+Search by Name, PAN, Phone, Email, Financial Year, Status
+
+Edit client details
+
+View client history
+
+Toggle client status (Active/Inactive)
+
+Fee Structure Management:
+Fee Categories:
+
+Income Tax Return
+
+GST Return
+
+Company Registration
+
+Trademark Registration
+
+PAN Application
+
+TDS Filing
+
+Audit Services
+
+Accounting Services
+
+Category Codes: 1=ITR, 2=GST, 3=Company, 4=Trademark, 5=PAN, 6=TDS, 7=Audit, 8=Accounting, 9=House Property, etc.
+
+Fee Management Features:
+
+Add/Edit/Delete categories
+
+Set base price and GST percentage
+
+Activate/Deactivate services
+
+CA-specific pricing (each CA sets own prices)
+
+Store in FEES_MASTER table
+
+Document Management System:
+Document Request Flow:
+
+CA selects required documents from predefined templates:
+
+PAN Card
+
+Aadhaar Card
+
+Bank Statements (Last 6 months)
+
+Salary Slips
+
+Investment Proofs (80C)
+
+Rental Agreements
+
+Property Papers
+
+Form 16
+
+GST Returns
+
+Send notification to client via Email and WhatsApp
+
+Client uploads documents through client portal
+
+CA reviews, approves, or requests re-upload
+
+Automatic document categorization and storage
+
+Document Storage:
+
+Store in Google Drive with proper folder structure:
+
+text
+CA_Name/Client_Name/Financial_Year/Document_Type/
+Track using DATA table with gdrive_file_id and gdrive_web_link
+
+Support preview, download, and delete operations
+
+AI-Powered Bill Generation:
+Keyword Matching System:
+
+Analyze uploaded document titles/extensions
+
+Match with fee category keywords:
+
+"House Property", "Rental" → Category 9
+
+"Salary", "Form 16" → Category 1
+
+"GST", "Returns" → Category 2
+
+"Company", "ROC" → Category 3
+
+"Trademark", "TM" → Category 4
+
+"PAN", "TAN" → Category 5
+
+"Audit", "Financial" → Category 7
+
+Bill Generation Process:
+
+Extract keywords from document names
+
+Match with fee catalog categories
+
+Auto-generate bill with matched categories
+
+CA can review and adjust:
+
+Add/Remove services
+
+Modify quantities
+
+Apply discounts
+
+Add custom charges
+
+Calculate GST (18%) automatically
+
+Generate invoice PDF with:
+
+Auto-incrementing invoice number
+
+Client details
+
+Service breakdown
+
+Tax calculation
+
+Grand total
+
+Payment QR code (Razorpay)
+
+Terms & Conditions
+
+Invoice Features:
+
+Download PDF
+
+Email to client
+
+WhatsApp sharing
+
+Payment status tracking
+
+Payment link generation
+
+Payment history
+
+Status Tracking Workflow:
+text
+Created → Documents Requested → Documents Uploaded → 
+Under Verification → Processing → Return Prepared → 
+Waiting for Approval → Completed → Invoice Generated → 
+Payment Completed
+Search Functionality:
+Global search across all clients
+
+Filter by:
+
+Name
+
+PAN
+
+Phone
+
+Email
+
+Financial Year
+
+Status
+
+Invoice Number
+
+Date Range
+
+Reporting Dashboard:
+Monthly Revenue Report
+
+Pending Payments Report
+
+Completed Returns Report
+
+Client Growth Chart
+
+Financial Year-wise Reports
+
+Export to Excel/PDF
+
+Notification System:
+Email notifications (using Nodemailer)
+
+WhatsApp notifications (Meta API)
+
+In-app notifications
+
+SMS (optional)
+
+Notification Triggers:
+
+Client creation/credentials
+
+Document request
+
+Document upload/approval/rejection
+
+Bill generation/payment
+
+Status updates
+
+Proposal generation
+
+3. CLIENT PORTAL
+Client Login Flow:
+Receives credentials via email from CA
+
+First-time login creates password
+
+Dashboard access with role-based permissions
+
+Client Dashboard Features:
+Document Upload Module:
+
+Drag-and-drop file upload
+
+Support: PDF, JPG, PNG, ZIP
+
+Max file size: 100MB
+
+Document status tracking:
+
+Pending Upload
+
+Uploaded
+
+Approved
+
+Rejected
+
+Re-upload Required
+
+Upload history
+
+Fee Catalog View:
+
+View available services
+
+See descriptions, prices, GST
+
+Understand billing structure
+
+Bill Management:
+
+View all invoices
+
+Download PDFs
+
+Pay online via Razorpay
+
+Payment history
+
+Payment status tracking
+
+Proposal Management:
+
+View proposals generated by CA
+
+Accept/Reject proposals
+
+Download PDFs
+
+Digital signature (optional)
+
+Status Tracking Timeline:
+
+text
+Created ↓
+Documents Requested ↓
+Documents Uploaded ↓
+Verification ↓
+Processing ↓
+Return Prepared ↓
+Waiting for Approval ↓
+Completed
+Client Profile Management:
+
+Update personal details
+
+Change password
+
+View notification preferences
+
+Communication history
+
+Support System:
+
+Raise support tickets
+
+Attach documents
+
+Chat with CA (real-time)
+
+View ticket history
+
+Ticket status tracking
+
+4. DATABASE IMPLEMENTATION
+Complete Database Schema:
+sql
+-- Users Table
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    pwd VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'CA',
+    is_admin TINYINT DEFAULT 0,
+    birthdate DATE,
+    profile_picture VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Client Masters Table
+CREATE TABLE client_masters (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    uid INT NOT NULL,
+    username VARCHAR(255) UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    phone_no VARCHAR(20),
+    email VARCHAR(255),
+    pwd VARCHAR(255),
+    status TINYINT DEFAULT 1,
+    dob DATE,
+    business_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Financial Year Master
+CREATE TABLE fy_master (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    year VARCHAR(10) UNIQUE NOT NULL,
+    status TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Data/Document Table
+CREATE TABLE data (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    uid INT NOT NULL,
+    client_id INT NOT NULL,
+    fy_id INT NOT NULL,
+    file_title VARCHAR(255) NOT NULL,
+    file_type VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'uploaded',
+    gdrive_file_id VARCHAR(255),
+    gdrive_web_link VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES client_masters(id) ON DELETE CASCADE,
+    FOREIGN KEY (fy_id) REFERENCES fy_master(id) ON DELETE CASCADE
+);
+
+-- Financial Year Data/Status Tracker
+CREATE TABLE fy_data (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    uid INT NOT NULL,
+    fy_client_id INT NOT NULL,
+    fy_id INT NOT NULL,
+    status INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (fy_client_id) REFERENCES client_masters(id) ON DELETE CASCADE,
+    FOREIGN KEY (fy_id) REFERENCES fy_master(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_client_fy (fy_client_id, fy_id)
+);
+
+-- Fees Master Table
+CREATE TABLE fees_master (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    uid INT NOT NULL,
+    cate INT NOT NULL,
+    category_name VARCHAR(255),
+    fees DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (uid) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_ca_category (uid, cate)
+);
+
+-- Additional Tables (Optional):
+CREATE TABLE invoices (...);
+CREATE TABLE proposals (...);
+CREATE TABLE payments (...);
+CREATE TABLE notifications (...);
+5. WORKFLOW INTEGRATION
+Complete Process Flow:
+Super Admin creates CA account
+
+CA logs in to dashboard
+
+CA creates client profile
+
+System auto-generates client credentials and sends via email
+
+Client logs in using credentials
+
+CA requests required documents
+
+Client uploads documents via dashboard
+
+CA reviews and verifies documents
+
+System uses AI to categorize documents
+
+System auto-generates preliminary bill based on keywords
+
+CA reviews and adjusts bill
+
+CA sends bill to client for approval
+
+Client views and accepts bill
+
+System generates final invoice with payment link
+
+Client makes payment via Razorpay
+
+CA processes return/filing
+
+System updates status to "Completed"
+
+Client receives final documents
+
+6. API ENDPOINTS
+Authentication APIs:
+python
+POST /api/auth/login
+POST /api/auth/register
+POST /api/auth/forgot-password
+POST /api/auth/reset-password
+POST /api/auth/verify-email
+POST /api/auth/logout
+GET /api/auth/me
+CA Portal APIs:
+python
+# Client Management
+GET /api/clients
+POST /api/clients
+PUT /api/clients/{id}
+DELETE /api/clients/{id}
+POST /api/clients/{id}/send-credentials
+
+# Document Management
+GET /api/documents
+POST /api/documents
+PUT /api/documents/{id}/status
+GET /api/documents/{id}/download
+
+# Fee Management
+GET /api/fees
+POST /api/fees
+PUT /api/fees/{id}
+DELETE /api/fees/{id}
+
+# Billing
+GET /api/invoices
+POST /api/invoices
+PUT /api/invoices/{id}
+POST /api/invoices/{id}/send
+POST /api/invoices/{id}/generate-payment-link
+
+# AI Services
+POST /api/ai/analyze-document
+POST /api/ai/generate-bill
+
+# Status Tracking
+GET /api/clients/{id}/status
+PUT /api/clients/{id}/status
+
+# Notifications
+GET /api/notifications
+POST /api/notifications
+PUT /api/notifications/{id}/read
+Client Portal APIs:
+python
+GET /api/client/profile
+PUT /api/client/profile
+POST /api/client/upload-document
+GET /api/client/documents
+GET /api/client/invoices
+GET /api/client/proposals
+PUT /api/client/proposals/{id}/accept
+GET /api/client/status
+POST /api/client/support-ticket
+7. UI/UX DESIGN
+Color Scheme:
+Primary: Navy Blue (#1B2A4A)
+
+Secondary: Emerald Green (#2E8B57)
+
+Accent: White (#FFFFFF)
+
+Background: Light Gray (#F5F7FA)
+
+Text: Dark Navy (#0F1A2E)
+
+Layout Components:
+Sidebar Navigation (collapsible)
+
+Top Navigation Bar with notifications
+
+Dashboard Cards for metrics
+
+Data Tables with sorting/pagination
+
+Modal Forms for CRUD operations
+
+Drag-and-Drop file upload area
+
+Status Badges with color coding
+
+Progress Bars for status tracking
+
+Charts using Chart.js/Recharts
+
+Responsive Design for all devices
+
+Dark Mode toggle
+
+Key Screens:
+Login/Signup Page: Clean design with form validation
+
+Dashboard: Overview cards and recent activity
+
+Client List: Search, filter, table view
+
+Client Detail: Profile, documents, bills, status
+
+Document Manager: Folder view with upload/approve buttons
+
+Billing Module: Invoice preview, edit, send
+
+Fee Structure: Category list with prices
+
+Reports: Charts and export options
+
+Client Dashboard: Upload area, bills view, status tracking
+
+8. SECURITY IMPLEMENTATION
+JWT Authentication with refresh tokens
+
+HTTPS for all API calls
+
+Input Validation using Pydantic
+
+SQL Injection protection (parameterized queries)
+
+XSS Protection (CSP headers)
+
+CSRF Protection (tokens)
+
+Rate Limiting for APIs
+
+File Upload Validation (type, size, scanning)
+
+Password Hashing (bcrypt)
+
+Role-Based Access Control (RBAC)
+
+Audit Logs for all actions
+
+Data Encryption for sensitive fields
+
+9. DEVELOPMENT ROADMAP
+Phase 1: Foundation (Weeks 1-2)
+Setup development environment
+
+Database schema creation
+
+Authentication system
+
+User roles and permissions
+
+Phase 2: Core Features (Weeks 3-4)
+CA Dashboard implementation
+
+Client management CRUD
+
+Client login and credentials
+
+Document upload system
+
+Phase 3: AI & Billing (Weeks 5-6)
+AI keyword matching
+
+Fee structure management
+
+Bill generation system
+
+Payment integration
+
+Phase 4: Frontend Development (Weeks 7-8)
+Complete UI implementation
+
+Client portal features
+
+Status tracking
+
+Notification system
+
+Phase 5: Testing & Deployment (Weeks 9-10)
+Unit testing
+
+Integration testing
+
+User acceptance testing
+
+Production deployment
+
+10. DEPLOYMENT CONFIGURATION
+Frontend (Vercel/Netlify):
+javascript
+// vite.config.js
+export default {
+    server: {
+        port: 3000,
+        proxy: {
+            '/api': 'http://localhost:8000'
+        }
+    }
+}
+Backend (Docker/AWS):
+dockerfile
+FROM python:3.9
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+Environment Variables:
+env
+# Database
+DATABASE_URL=mysql://user:pass@localhost/easytax
+
+# JWT
+SECRET_KEY=your-secret-key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASS=your-password
+
+# Google Drive
+GOOGLE_DRIVE_CREDENTIALS=path-to-credentials.json
+GOOGLE_DRIVE_FOLDER_ID=parent-folder-id
+
+# Razorpay
+RAZORPAY_KEY_ID=your-key-id
+RAZORPAY_KEY_SECRET=your-key-secret
+
+# WhatsApp
+WHATSAPP_API_TOKEN=your-token
+WHATSAPP_PHONE_ID=your-phone-id
+11. KEY SUCCESS METRICS
+Performance: API response time < 500ms
+
+Security: All endpoints authenticated
+
+Scalability: Support 100+ concurrent users
+
+Reliability: 99.9% uptime
+
+User Experience: Intuitive and responsive
+
+Data Integrity: All relationships maintained
+
+Document Processing: 95%+ accuracy in AI matching
