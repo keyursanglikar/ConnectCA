@@ -1,9 +1,10 @@
+// frontend/src/components/common/Layout/DashboardLayout.jsx
 import React, { useState, useEffect } from 'react'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const DashboardLayout = ({ children, title, subtitle }) => {
+const DashboardLayout = ({ children, title, subtitle, headerActions }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -42,12 +43,13 @@ const DashboardLayout = ({ children, title, subtitle }) => {
           isSidebarOpen={isSidebarOpen}
           title={title}
           subtitle={subtitle}
+          headerActions={headerActions}
         />
         
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
           <AnimatePresence mode="wait">
             <motion.div
-              key={location.pathname}
+              key={window.location.pathname}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}

@@ -1,9 +1,10 @@
+// frontend/src/components/common/Layout/Topbar.jsx
 import React, { useState } from 'react'
-import { Menu, Bell, User, Search, ChevronDown, Settings, LogOut, HelpCircle } from 'lucide-react'
+import { Menu, Bell, User, Search, ChevronDown, Settings, LogOut, HelpCircle, Cloud, CloudOff, Check, AlertTriangle, Loader2 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const Topbar = ({ onMenuClick, isSidebarOpen, title, subtitle }) => {
+const Topbar = ({ onMenuClick, isSidebarOpen, title, subtitle, headerActions }) => {
   const { user, logout } = useAuth()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
@@ -58,6 +59,13 @@ const Topbar = ({ onMenuClick, isSidebarOpen, title, subtitle }) => {
 
         {/* Right Section - Actions */}
         <div className="flex items-center space-x-2 md:space-x-4">
+          {/* ✅ OneDrive Status - Header Actions */}
+          {headerActions && (
+            <div className="hidden md:flex items-center">
+              {headerActions}
+            </div>
+          )}
+
           {/* Notification Bell */}
           <div className="relative">
             <button

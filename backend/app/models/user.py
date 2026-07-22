@@ -1,7 +1,8 @@
-# from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Text
+# from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Text, JSON, Float
 # from sqlalchemy.orm import relationship
 # from sqlalchemy.sql import func
 # from app.core.database import Base
+# from app.models.ca_master import CAMaster  # Add this import
 # import enum
 
 
@@ -26,6 +27,16 @@
 #     is_verified = Column(Boolean, default=False)
 #     phone = Column(String(20), nullable=True)
     
+#     # ✅ OneDrive Integration Fields
+#     onedrive_access_token = Column(String(2000), nullable=True)
+#     onedrive_refresh_token = Column(String(2000), nullable=True)
+#     onedrive_token_expiry = Column(Float, nullable=True)  # Unix timestamp
+#     onedrive_email = Column(String(255), nullable=True)
+#     onedrive_connected_at = Column(DateTime, nullable=True)
+    
+#     # ✅ Last Login Field
+#     last_login = Column(DateTime, nullable=True)
+    
 #     created_at = Column(DateTime, server_default=func.now())
 #     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -44,22 +55,15 @@
 #         return f"<User {self.username} ({self.email})>"
 
 
-
-
-
-
-
-
-
-
-
-
-
+# backend/app/models/user.py
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Text, JSON, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 import enum
+
+# ✅ Import CAMaster to resolve the relationship
+from app.models.ca_master import CAMaster  # Add this import
 
 
 class UserRole(str, enum.Enum):
@@ -82,19 +86,21 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     phone = Column(String(20), nullable=True)
-  
     
     # ✅ OneDrive Integration Fields
-    onedrive_access_token = Column(String(2000), nullable=True)
-    onedrive_refresh_token = Column(String(2000), nullable=True)
-    onedrive_token_expiry = Column(Float, nullable=True)  # Unix timestamp
+    onedrive_access_token = Column(String(5000), nullable=True)  # Increased to 5000
+    onedrive_refresh_token = Column(String(5000), nullable=True)  # Increased to 5000
+    onedrive_token_expiry = Column(Float, nullable=True)
     onedrive_email = Column(String(255), nullable=True)
     onedrive_connected_at = Column(DateTime, nullable=True)
+    
+    # ✅ Last Login Field
+    last_login = Column(DateTime, nullable=True)
     
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    # Relationships
+    # ✅ Relationships
     ca_master = relationship("CAMaster", back_populates="user", uselist=False)
     clients = relationship("ClientMaster", foreign_keys="ClientMaster.ca_user_id", back_populates="ca_user")
     client_profile = relationship("ClientMaster", foreign_keys="ClientMaster.user_id", back_populates="user", uselist=False)

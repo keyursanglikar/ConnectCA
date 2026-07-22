@@ -62,8 +62,6 @@
 
 
 
-
-
 # app/core/config.py
 from pydantic_settings import BaseSettings
 from typing import Optional
@@ -106,10 +104,9 @@ class Settings(BaseSettings):
     ONEDRIVE_REDIRECT_URI: str = "http://localhost:8000/api/v1/onedrive/callback"
     
     class Config:
-        # Use the .env file in the root directory
         env_file = ".env"
         env_file_encoding = "utf-8"
-        case_sensitive = True  # Make it case sensitive
+        case_sensitive = True
         extra = "ignore"
 
 

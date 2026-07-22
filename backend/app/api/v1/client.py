@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 from typing import Any, List, Optional
 from pathlib import Path
 import os
+import requests  # ✅ Add this import
 from datetime import datetime
 from pydantic import BaseModel
 from decimal import Decimal
+
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_client
@@ -251,15 +253,13 @@ async def upload_document_client(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-
-# ============ SEND TO CA ENDPOINT ============
 @router.post("/send-to-ca")
 async def send_to_ca(
     request: SendToCARequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_client)
 ) -> Any:
-    """Send the client's document selections and estimated bill to the CA"""
+    """Send the client's document selections and estimated bill to the CA with OneDrive storage"""
     try:
         # Get the client
         client = db.query(ClientMaster).filter(
@@ -280,8 +280,10 @@ async def send_to_ca(
                 detail="CA not found for this client"
             )
         
-        # ✅ Get the actual documents from the database using document_ids
+        # ✅ Get the actual documents from the database
         documents_data = []
+        document_files = []
+        
         if request.document_ids:
             docs = db.query(Document).filter(
                 Document.id.in_(request.document_ids),
@@ -298,8 +300,20 @@ async def send_to_ca(
                     "detected_label": getattr(doc, 'detected_label', None),
                     "confidence": getattr(doc, 'confidence', None),
                     "status": doc.status.value if hasattr(doc.status, 'value') else str(doc.status),
-                    "uploaded_at": doc.uploaded_at.isoformat() if doc.uploaded_at else None
+                    "uploaded_at": doc.uploaded_at.isoformat() if doc.uploaded_at else None,
+                    "local_path": doc.local_path
                 })
+                
+                # ✅ Collect file paths for OneDrive upload
+                if doc.local_path and os.path.exists(doc.local_path):
+                    document_files.append({
+                        "path": doc.local_path,
+                        "name": doc.file_title or os.path.basename(doc.local_path),
+                        "document_id": doc.id
+                    })
+                    print(f"📄 Found document: {doc.local_path}")
+                else:
+                    print(f"⚠️ Document file not found: {doc.local_path}")
         
         # ✅ CREATE SUBMISSION RECORD
         submission = ClientSubmission(
@@ -319,96 +333,324 @@ async def send_to_ca(
         db.commit()
         db.refresh(submission)
         
+        print(f"✅ Submission created: {submission.id}")
+        
+        # ✅ UPLOAD TO ONEDRIVE
+        onedrive_upload_success = False
+        onedrive_folder_url = None
+        onedrive_folder_path = None
+        onedrive_error = None
+        
+        print(f"\n📁 === ONEDRIVE UPLOAD START ===")
+        print(f"📧 CA Email: {ca_user.email}")
+        print(f"🔑 CA Has Access Token: {bool(ca_user.onedrive_access_token)}")
+        print(f"🔑 CA Has Refresh Token: {bool(ca_user.onedrive_refresh_token)}")
+        print(f"📄 Documents to upload: {len(document_files)}")
+        
+        # ✅ Check if CA has OneDrive connected
+        if ca_user.onedrive_access_token and ca_user.onedrive_refresh_token:
+            try:
+                from app.services.onedrive_service import OneDriveService
+                
+                print("✅ CA has OneDrive tokens, initializing service...")
+                
+                # Initialize OneDrive service for CA
+                onedrive_service = OneDriveService(user=ca_user, db=db)
+                
+                # ✅ Test the token directly with Microsoft Graph
+                print("\n🔄 Testing token with Microsoft Graph...")
+                headers = {
+                    "Authorization": f"Bearer {ca_user.onedrive_access_token}",
+                    "Content-Type": "application/json"
+                }
+                
+                drive_response = requests.get(
+                    "https://graph.microsoft.com/v1.0/me/drive",
+                    headers=headers
+                )
+                
+                if drive_response.status_code != 200:
+                    print(f"❌ Token test failed: {drive_response.status_code}")
+                    print(f"   Response: {drive_response.text}")
+                    
+                    # Try to refresh the token
+                    print("\n🔄 Attempting to refresh token...")
+                    refresh_success = onedrive_service._refresh_token()
+                    if refresh_success:
+                        print("✅ Token refreshed successfully!")
+                        # Update CA user with new token
+                        db.refresh(ca_user)
+                    else:
+                        print("❌ Failed to refresh token")
+                        onedrive_error = "Token refresh failed. Please reconnect OneDrive."
+                        raise Exception(onedrive_error)
+                
+                print("✅ OneDrive connection verified!")
+                
+                # ✅ Create folder structure
+                ca_folder = f"EazyTax/CA_{ca_user.id}"
+                client_folder_name = f"Client_{client.id}_{current_user.name.replace(' ', '_')}_{current_user.email}_{datetime.utcnow().strftime('%Y%m%d')}"
+                full_folder_path = f"{ca_folder}/{client_folder_name}"
+                onedrive_folder_path = full_folder_path
+                
+                print(f"\n📁 Creating OneDrive folder: {full_folder_path}")
+                
+                # Create folder using direct API call
+                folder_url = "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                
+                # Create folders one by one
+                current_path = ""
+                for folder_name in full_folder_path.split('/'):
+                    if current_path:
+                        current_path = f"{current_path}/{folder_name}"
+                    else:
+                        current_path = folder_name
+                    
+                    # Check if folder exists
+                    check_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{current_path}"
+                    check_response = requests.get(
+                        check_url,
+                        headers=headers
+                    )
+                    
+                    if check_response.status_code == 404:
+                        # Create folder
+                        parent_path = "/".join(current_path.split('/')[:-1])
+                        if parent_path:
+                            create_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{parent_path}:/children"
+                        else:
+                            create_url = "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                        
+                        create_response = requests.post(
+                            create_url,
+                            headers={
+                                "Authorization": f"Bearer {ca_user.onedrive_access_token}",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "name": folder_name,
+                                "folder": {},
+                                "@microsoft.graph.conflictBehavior": "rename"
+                            }
+                        )
+                        
+                        if create_response.status_code in [200, 201]:
+                            print(f"✅ Created folder: {folder_name}")
+                        else:
+                            print(f"❌ Failed to create folder: {folder_name}")
+                            print(f"   {create_response.text}")
+                            onedrive_error = f"Failed to create folder: {folder_name}"
+                            raise Exception(onedrive_error)
+                
+                # Get folder URL
+                folder_info_response = requests.get(
+                    f"https://graph.microsoft.com/v1.0/me/drive/root:/{full_folder_path}",
+                    headers=headers
+                )
+                
+                if folder_info_response.status_code == 200:
+                    folder_info = folder_info_response.json()
+                    onedrive_folder_url = folder_info.get('webUrl')
+                    
+                    # Update submission with folder info
+                    submission.onedrive_folder_path = full_folder_path
+                    submission.onedrive_folder_id = folder_info.get('id')
+                    submission.onedrive_folder_url = onedrive_folder_url
+                    db.commit()
+                    
+                    print(f"✅ OneDrive folder created!")
+                    print(f"   URL: {onedrive_folder_url}")
+                else:
+                    print(f"❌ Failed to get folder info")
+                    onedrive_error = "Failed to get folder info"
+                
+                # ✅ Upload each document
+                uploaded_files = []
+                for idx, doc_file in enumerate(document_files):
+                    try:
+                        file_path = doc_file['path']
+                        file_name = doc_file['name']
+                        
+                        print(f"\n📤 Uploading file {idx + 1}/{len(document_files)}: {file_name}")
+                        
+                        # Read file content
+                        with open(file_path, 'rb') as f:
+                            file_content = f.read()
+                        
+                        # Upload to OneDrive
+                        upload_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{full_folder_path}/{file_name}:/content"
+                        
+                        upload_response = requests.put(
+                            upload_url,
+                            headers={
+                                "Authorization": f"Bearer {ca_user.onedrive_access_token}",
+                                "Content-Type": "application/octet-stream"
+                            },
+                            data=file_content
+                        )
+                        
+                        if upload_response.status_code in [200, 201]:
+                            file_info = upload_response.json()
+                            uploaded_files.append({
+                                "name": file_name,
+                                "document_id": doc_file['document_id'],
+                                "web_url": file_info.get('webUrl'),
+                                "type": "document"
+                            })
+                            print(f"✅ Uploaded: {file_name}")
+                        else:
+                            print(f"❌ Upload failed: {file_name}")
+                            print(f"   {upload_response.text}")
+                        
+                    except Exception as file_error:
+                        print(f"❌ Error uploading {doc_file.get('name', 'unknown')}: {file_error}")
+                        # Continue with other files
+                
+                # ✅ Upload estimated bill
+                try:
+                    bill_summary = f"""
+================================================================================
+                              ESTIMATED BILL
+================================================================================
+Client: {current_user.name} ({current_user.email})
+Client Email: {current_user.email}
+Submission ID: {submission.id}
+Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}
+
+--------------------------------------------------------------------------------
+FEE COMPONENTS
+--------------------------------------------------------------------------------
+"""
+                    for line in request.estimated_bill.lines:
+                        bill_summary += f"  {line.label:<50} ₹{line.amount:>10,.0f}\n"
+                    
+                    bill_summary += f"""
+--------------------------------------------------------------------------------
+  TOTAL ESTIMATE:                                             ₹{request.estimated_bill.total:>10,.0f}
+================================================================================
+
+Adjustments:
+  House Properties: {request.adjustments.house_properties}
+  Residential Status: {request.adjustments.residential_status}
+  Missed Streams: {', '.join(request.adjustments.missed_streams) or 'None'}
+
+Documents: {len(documents_data)} files
+================================================================================
+"""
+                    
+                    bill_content = bill_summary.encode('utf-8')
+                    bill_file_name = f"Estimated_Bill_{submission.id}_{datetime.utcnow().strftime('%Y%m%d')}.txt"
+                    
+                    print(f"\n📤 Uploading estimated bill: {bill_file_name}")
+                    
+                    bill_upload_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{full_folder_path}/{bill_file_name}:/content"
+                    
+                    bill_response = requests.put(
+                        bill_upload_url,
+                        headers={
+                            "Authorization": f"Bearer {ca_user.onedrive_access_token}",
+                            "Content-Type": "text/plain"
+                        },
+                        data=bill_content
+                    )
+                    
+                    if bill_response.status_code in [200, 201]:
+                        bill_info = bill_response.json()
+                        uploaded_files.append({
+                            "name": bill_file_name,
+                            "type": "estimated_bill",
+                            "web_url": bill_info.get('webUrl')
+                        })
+                        print(f"✅ Uploaded estimated bill: {bill_file_name}")
+                    else:
+                        print(f"❌ Failed to upload estimated bill: {bill_response.status_code}")
+                        print(f"   {bill_response.text}")
+                        
+                except Exception as bill_error:
+                    print(f"❌ Error uploading estimated bill: {bill_error}")
+                
+                # Update submission with upload status
+                if uploaded_files:
+                    submission.onedrive_upload_status = "COMPLETED"
+                    submission.document_links = uploaded_files
+                    submission.onedrive_uploaded_at = datetime.utcnow()
+                    db.commit()
+                    
+                    onedrive_upload_success = True
+                    print(f"\n✅ All files uploaded to OneDrive!")
+                    print(f"   Total files uploaded: {len(uploaded_files)}")
+                    print(f"   Folder: {full_folder_path}")
+                else:
+                    submission.onedrive_upload_status = "FAILED"
+                    db.commit()
+                    onedrive_error = "No files were uploaded"
+                    print(f"❌ No files uploaded to OneDrive")
+                    
+            except Exception as e:
+                onedrive_error = str(e)
+                print(f"❌ OneDrive upload error: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            onedrive_error = "CA does not have OneDrive connected"
+            print(f"❌ CA does not have OneDrive connected!")
+            print(f"   CA Email: {ca_user.email}")
+            print(f"   Has Access Token: {bool(ca_user.onedrive_access_token)}")
+            print(f"   Has Refresh Token: {bool(ca_user.onedrive_refresh_token)}")
+            print(f"\nPlease ask CA to connect OneDrive first.")
+        
+        print(f"\n📁 === ONEDRIVE UPLOAD END ===")
+        print(f"   Success: {onedrive_upload_success}")
+        print(f"   Folder URL: {onedrive_folder_url}")
+        print(f"   Error: {onedrive_error}")
+        
         # ✅ Create notification for CA
+        notification_data = {
+            "submission_id": submission.id,
+            "client_id": client.id,
+            "client_name": current_user.name,
+            "client_email": current_user.email,
+            "total_estimate": float(request.estimated_bill.total),
+            "document_count": len(documents_data),
+            "onedrive_uploaded": onedrive_upload_success,
+            "onedrive_folder_url": onedrive_folder_url,
+            "onedrive_folder_path": onedrive_folder_path
+        }
+        
         notification = Notification(
             user_id=client.ca_user_id,
             type="submission",
-            message=f"New fee estimation from {current_user.name}",
+            message=f"New fee estimation from {current_user.name}" + 
+                    (f" 📁 Files uploaded to OneDrive" if onedrive_upload_success else ""),
             is_read=False,
-            data={
-                "submission_id": submission.id,
-                "client_id": client.id,
-                "client_name": current_user.name,
-                "client_email": current_user.email,
-                "total_estimate": float(request.estimated_bill.total),
-                "document_count": len(documents_data)
-            }
+            data=notification_data
         )
         db.add(notification)
         db.commit()
         
-        # Build email content
-        documents_summary = "\n".join([
-            f"  • {doc.get('file_title', 'Unknown')} - Bill as: {doc.get('bill_as', 'ignore')}"
-            for doc in documents_data
-        ]) or "No documents"
-        
-        bill_summary = "\n".join([
-            f"  • {line.label}: ₹{line.amount}"
-            for line in request.estimated_bill.lines
-        ])
-        
-        email_body = f"""
-        <h2>New Client Fee Estimation Submitted</h2>
-        
-        <p><strong>Client:</strong> {current_user.name} ({current_user.email})</p>
-        
-        <h3>📄 Documents ({len(documents_data)})</h3>
-        <pre>{documents_summary}</pre>
-        
-        <h3>📊 Adjustments</h3>
-        <ul>
-            <li>House Properties: {request.adjustments.house_properties}</li>
-            <li>Residential Status: {request.adjustments.residential_status}</li>
-            <li>Missed Streams: {', '.join(request.adjustments.missed_streams) or 'None'}</li>
-        </ul>
-        
-        <h3>💰 Estimated Bill</h3>
-        <pre>{bill_summary}</pre>
-        
-        <p><strong>Total Estimate:</strong> ₹{request.estimated_bill.total}</p>
-        
-        <p style="margin-top: 20px;">
-            <a href="{settings.FRONTEND_URL}/ca/submissions/{submission.id}" 
-               style="background: #0E6E5C; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;">
-                Review Submission
-            </a>
-        </p>
-        
-        <p style="margin-top: 20px; font-size: 12px; color: #666;">
-            This is an automated notification from the client fee estimator.
-            Please review the documents and estimate in the system.
-        </p>
-        """
-        
-        # Send email to CA
-        try:
-            await EmailService.send_email(
-                to_email=ca_user.email,
-                subject=f"New Fee Estimation from {current_user.name}",
-                html_content=email_body
-            )
-            logger.info(f"📧 Sent fee estimation email to CA: {ca_user.email}")
-        except Exception as e:
-            logger.error(f"Failed to send email to CA: {e}")
-        
         return {
-            "message": "Successfully sent to CA",
+            "message": "Successfully sent to CA" + (f" 📁 Uploaded to OneDrive" if onedrive_upload_success else ""),
             "submission_id": submission.id,
             "ca_email": ca_user.email,
             "document_count": len(documents_data),
-            "estimated_total": request.estimated_bill.total
+            "estimated_total": request.estimated_bill.total,
+            "onedrive_uploaded": onedrive_upload_success,
+            "onedrive_folder_url": onedrive_folder_url,
+            "onedrive_folder_path": onedrive_folder_path,
+            "onedrive_error": onedrive_error,
+            "onedrive_status": "COMPLETED" if onedrive_upload_success else "FAILED"
         }
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error sending to CA: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to send to CA: {str(e)}"
         )
-
 
 # ============ DELETE DOCUMENT ENDPOINT ============
 @router.delete("/documents/{document_id}")
