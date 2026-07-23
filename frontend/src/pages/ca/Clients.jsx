@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/layout/DashboardLayout.jsx'
 import { Plus, Search, Filter, Eye, Edit, Trash2, UserPlus, Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
