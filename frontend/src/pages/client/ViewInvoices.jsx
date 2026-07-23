@@ -1,5 +1,5 @@
 import React from 'react'
-import Sidebar from '../../components/common/Layout/Sideba.jsx'
+import Sidebar from '../../components/common/Layout/Sideba.js'
 import Topbar from '../../components/common/Layout/Topbar.jsx'
 import { Download, Eye, DollarSign, CreditCard } from 'lucide-react'
 
