@@ -1,7 +1,7 @@
 // frontend/src/pages/ca/Dashboard.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import OneDriveConnectionModal from '../../components/common/Modals/OneDriveConnectionModal'
 import { useAuth } from '../../context/AuthContext'
 import {

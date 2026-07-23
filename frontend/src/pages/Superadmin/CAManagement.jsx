@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import DataTable from '../../components/common/Tables/DataTable'
 import Modal from '../../components/common/Modals/Modal'
 import ConfirmDialog from '../../components/common/Modals/ConfirmDialog'

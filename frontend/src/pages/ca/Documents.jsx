@@ -391,7 +391,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import {
   FileText, Upload, X, Loader2, CheckCircle, Clock, AlertCircle,
   Eye, EyeOff, Download, ExternalLink, Link as LinkIcon,

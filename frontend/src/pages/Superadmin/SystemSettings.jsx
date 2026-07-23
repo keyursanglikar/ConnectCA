@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import Input from '../../components/common/Forms/Input'
 import Select from '../../components/common/Forms/Select'
 import { Save, Globe, Shield, Mail, CreditCard, Database, Bell } from 'lucide-react'

@@ -1,5 +1,5 @@
 import React from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import DashboardMetrics from '../../components/dashboard/DashboardMetrics'
 import RecentActivity from '../../components/dashboard/RecentActivity'
 import QuickActions from '../../components/dashboard/QuickActions'

@@ -1,7 +1,7 @@
 // src/pages/ca/FeeStructure.jsx
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import { 
   Plus, Edit, Trash2, DollarSign, Search, X, Save, Loader2,
   CheckCircle, AlertCircle, RefreshCw, FileText, Tags,

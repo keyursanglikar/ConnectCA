@@ -1,5 +1,5 @@
 import React from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import CreateClient from './CreateClient'
 
 const ClientsAdd = () => {

@@ -1777,7 +1777,7 @@
 // src/pages/client/ClientDashboard.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import {
   FileText, Upload, X, Loader2, CheckCircle, Clock, AlertCircle,
   Receipt, User, Mail, Building2, Trash2, Edit, ArrowUpRight,

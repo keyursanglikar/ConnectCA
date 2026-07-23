@@ -1,7 +1,7 @@
 // frontend/src/pages/ca/SubmissionDetail.jsx
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
 import { 
   FileText, Eye, Clock, CheckCircle, XCircle, Loader2, ArrowLeft,
   Receipt, User, Mail, Calendar, DollarSign, Send, File, FolderOpen,
