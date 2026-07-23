@@ -1,7 +1,7 @@
 // frontend/src/components/common/Layout/DashboardLayout.jsx
 import React, { useState, useEffect } from 'react'
-import Sidebar from './Sidebar'
-import Topbar from './Topbar'
+import Sidebar from './Sidebar.jsx'
+import Topbar from './Topbar.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const DashboardLayout = ({ children, title, subtitle, headerActions }) => {
