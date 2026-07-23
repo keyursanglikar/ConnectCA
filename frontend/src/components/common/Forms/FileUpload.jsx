@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Upload, X, File, Image, CheckCircle } from 'lucide-react'
-import { formatFileSize } from '../../../utils/helpers'
+import { formatFileSize } from '../../../utils/helpers.js'
 
 const FileUpload = ({
   label,

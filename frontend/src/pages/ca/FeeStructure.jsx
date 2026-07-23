@@ -11,7 +11,7 @@ import {
   Hash, Info, User, Mail, Building, Calendar, Clock
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 // Fee Type Colors
 const FEE_TYPE_COLORS = {

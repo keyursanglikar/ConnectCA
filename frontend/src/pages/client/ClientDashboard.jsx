@@ -1791,10 +1791,10 @@ import {
   BadgeCheck, ArrowRight, Calendar as CalendarIcon, Filter as FilterIcon
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 import { format } from 'date-fns'
-import FeePamplatePopup from './FeePamplatePopup'
-import { feeApi } from '../../api/fee.api'
+import FeePamplatePopup from './FeePamplatePopup.jsx'
+import { feeApi } from '../../api/fee.api.js'
 
 /* ======================================================================
    EXTERNAL LIBRARIES — loaded dynamically, once, on mount.

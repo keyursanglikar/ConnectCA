@@ -18,7 +18,7 @@ import {
   DollarSign
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 const ClientDocuments = () => {
   const { id } = useParams()

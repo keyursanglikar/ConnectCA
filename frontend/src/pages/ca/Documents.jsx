@@ -406,7 +406,7 @@ import {
   Inbox, Cloud, FolderTree, Users, ChevronRight as ChevronRightIcon,
   HardDrive, Database, Server, FolderPlus, UploadCloud
 } from 'lucide-react'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 const CADocuments = () => {
   const navigate = useNavigate()

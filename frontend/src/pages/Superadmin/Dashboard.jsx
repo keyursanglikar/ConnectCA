@@ -1,8 +1,8 @@
 import React from 'react'
 import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
-import DashboardMetrics from '../../components/dashboard/DashboardMetrics'
-import RecentActivity from '../../components/dashboard/RecentActivity'
-import QuickActions from '../../components/dashboard/QuickActions'
+import DashboardMetrics from '../../components/dashboard/DashboardMetrics.jsx'
+import RecentActivity from '../../components/dashboard/RecentActivity.jsx'
+import QuickActions from '../../components/dashboard/QuickActions.jsx'
 import { Users, Building2, UserPlus, Activity, DollarSign, Clock } from 'lucide-react'
 
 const SuperAdminDashboard = () => {

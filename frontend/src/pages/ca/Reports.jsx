@@ -1,6 +1,6 @@
 import React from 'react'
-import Sidebar from '../../components/common/Layout/Sidebar'
-import Topbar from '../../components/common/Layout/Topbar'
+import Sidebar from '../../components/common/Layout/Sidebar.jsx'
+import Topbar from '../../components/common/Layout/Topbar.jsx'
 import { Download, TrendingUp, TrendingDown, Users, DollarSign } from 'lucide-react'
 
 const Reports = () => {

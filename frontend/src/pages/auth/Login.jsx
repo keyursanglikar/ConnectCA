@@ -395,7 +395,7 @@
 // frontend/src/pages/auth/Login.jsx
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth.js'
 import { motion } from 'framer-motion'
 import { 
   Eye, 

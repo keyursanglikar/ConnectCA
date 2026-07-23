@@ -1287,7 +1287,7 @@ import {
   AlertTriangle, ChevronDown, ChevronUp
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 import { format } from 'date-fns'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'

@@ -1,7 +1,7 @@
 // frontend/src/components/common/Layout/Topbar.jsx
 import React, { useState } from 'react'
 import { Menu, Bell, User, Search, ChevronDown, Settings, LogOut, HelpCircle, Cloud, CloudOff, Check, AlertTriangle, Loader2 } from 'lucide-react'
-import { useAuth } from '../../../hooks/useAuth'
+import { useAuth } from '../../../hooks/useAuth.js'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Topbar = ({ onMenuClick, isSidebarOpen, title, subtitle, headerActions }) => {

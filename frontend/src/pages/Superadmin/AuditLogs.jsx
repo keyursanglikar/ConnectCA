@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import DashboardLayout from '../../components/common/Layout/DashboardLayout'
-import DataTable from '../../components/common/Tables/DataTable'
+import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
+import DataTable from '../../components/common/Tables/DataTable.jsx'
 import { Search, Filter, Download, Calendar, User, Activity, Clock } from 'lucide-react'
 
 const AuditLogs = () => {

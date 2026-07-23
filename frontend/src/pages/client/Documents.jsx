@@ -497,11 +497,11 @@ import {
   FileVideo, FileAudio, FileImage, FileJson,
   Inbox, Cloud
 } from 'lucide-react'
-import { documentApi } from '../../api/document.api'
-import { submissionApi } from '../../api/submission.api'
-import { billApi } from '../../api/bill.api'
-import safeToast from '../../utils/toast'
-import ViewDocumentModal from '../../components/common/Modals/ViewDocumentModal'
+import { documentApi } from '../../api/document.api.js'
+import { submissionApi } from '../../api/submission.api.js'
+import { billApi } from '../../api/bill.api.js'
+import safeToast from '../../utils/toast.js'
+import ViewDocumentModal from '../../components/common/Modals/ViewDocumentModal.jsx'
 
 const ClientDocuments = () => {
   const navigate = useNavigate()

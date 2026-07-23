@@ -23,7 +23,7 @@ import {
   FileText
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 const MyFeePamplate = () => {
   const [isLoading, setIsLoading] = useState(true)

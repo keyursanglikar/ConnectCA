@@ -1,6 +1,6 @@
 import React from 'react'
-import Sidebar from '../../components/common/Layout/Sidebar'
-import Topbar from '../../components/common/Layout/Topbar'
+import Sidebar from '../../components/common/Layout/Sideba.jsx'
+import Topbar from '../../components/common/Layout/Topbar.jsx'
 import { Download, Eye, DollarSign, CreditCard } from 'lucide-react'
 
 const ViewInvoices = () => {

@@ -1,6 +1,6 @@
 import React from 'react'
-import Sidebar from '../../components/common/Layout/Sidebar'
-import Topbar from '../../components/common/Layout/Topbar'
+import Sidebar from '../../components/common/Layout/Sidebar.jsx'
+import Topbar from '../../components/common/Layout/Topbar.jsx'
 import { CheckCircle, Clock, FileText, Users, DollarSign, Award } from 'lucide-react'
 
 const StatusTracker = () => {

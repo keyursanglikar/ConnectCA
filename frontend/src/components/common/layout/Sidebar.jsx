@@ -895,7 +895,7 @@ import {
   Diamond as DiamondIcon,
   Triangle as TriangleIcon
 } from 'lucide-react'
-import { useAuth } from '../../../hooks/useAuth'
+import { useAuth } from '../../../hooks/useAuth.js'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation()

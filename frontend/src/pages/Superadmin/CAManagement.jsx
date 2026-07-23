@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
-import DataTable from '../../components/common/Tables/DataTable'
-import Modal from '../../components/common/Modals/Modal'
-import ConfirmDialog from '../../components/common/Modals/ConfirmDialog'
-import Input from '../../components/common/Forms/Input'
-import Select from '../../components/common/Forms/Select'
+import DataTable from '../../components/common/Tables/DataTable.jsx'
+import Modal from '../../components/common/Modals/Modal.jsx'
+import ConfirmDialog from '../../components/common/Modals/ConfirmDialog.jsx'
+import Input from '../../components/common/Forms/Input.jsx'
+import Select from '../../components/common/Forms/Select.jsx'
 import { 
   Plus, 
   Search, 

@@ -24,8 +24,8 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { feeApi } from '../../api/fee.api'
-import safeToast from '../../utils/toast'
+import { feeApi } from '../../api/fee.api.js'
+import safeToast from '../../utils/toast.js'
 
 const FeePamplatePopup = ({ 
   isOpen, 

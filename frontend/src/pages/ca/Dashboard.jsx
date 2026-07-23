@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import DashboardLayout from '../../components/common/Layout/DashboardLayout.jsx'
-import OneDriveConnectionModal from '../../components/common/Modals/OneDriveConnectionModal'
-import { useAuth } from '../../context/AuthContext'
+import OneDriveConnectionModal from '../../components/common/Modals/OneDriveConnectionModal.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 import {
   Users, FileText, DollarSign, TrendingUp, Clock, CheckCircle,
   AlertCircle, Bell, Calendar, Activity, Download, Eye,
@@ -15,7 +15,7 @@ import {
   CloudOff, AlertTriangle, Check, X
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 const Dashboard = () => {
   const navigate = useNavigate()

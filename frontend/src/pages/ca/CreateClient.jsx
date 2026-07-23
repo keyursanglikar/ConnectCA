@@ -17,7 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import axios from 'axios'
-import safeToast from '../../utils/toast'
+import safeToast from '../../utils/toast.js'
 
 const CreateClient = () => {
   const navigate = useNavigate()
